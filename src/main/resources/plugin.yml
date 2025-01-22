@@ -1,0 +1,4 @@
+name: Chuvoz
+version: '${project.version}'
+main: rainprojects.chuvoz.Chuvoz
+load: STARTUP
