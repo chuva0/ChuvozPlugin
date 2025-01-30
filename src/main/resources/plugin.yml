@@ -5,3 +5,5 @@ load: STARTUP
 author: chuyuva
 commands:
   mina:
+  grupo:
+  group:

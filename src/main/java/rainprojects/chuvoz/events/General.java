@@ -8,10 +8,6 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import rainprojects.chuvoz.entities.EPlayer;
 import rainprojects.chuvoz.manager.PlayerManager;
-import rainprojects.chuvoz.scoreboard.ScoreboardHandler;
-
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 public class General implements Listener {
@@ -24,7 +20,8 @@ public class General implements Listener {
                 PlayerManager.getPlayerMap().get(event.getPlayer().getUniqueId()).getCash() + " " +
                         PlayerManager.getPlayerMap().get(event.getPlayer().getUniqueId()).getMoney() + " " +
                         PlayerManager.getPlayerMap().get(event.getPlayer().getUniqueId()).getRank().toString() + " " +
-                        PlayerManager.getPlayerMap().get(event.getPlayer().getUniqueId()).getGroup().toString() + " "
+                        PlayerManager.getPlayerMap().get(event.getPlayer().getUniqueId()).getGroup().toString() + " " +
+                        event.getPlayer().getScoreboard()
         );
     }
     @EventHandler

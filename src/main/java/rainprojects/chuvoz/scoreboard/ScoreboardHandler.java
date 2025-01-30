@@ -5,114 +5,55 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.scoreboard.DisplaySlot;
-import org.bukkit.scoreboard.Objective;
-import org.bukkit.scoreboard.Scoreboard;
-import org.bukkit.scoreboard.Team;
+import org.bukkit.scoreboard.*;
 import rainprojects.chuvoz.entities.EPlayer;
-import rainprojects.chuvoz.entities.Group;
 import rainprojects.chuvoz.manager.PlayerManager;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 
 public class ScoreboardHandler implements Listener {
 
-    private static Objective sidebar;
-    private static int i;
+    public static void setScoreboard(Player player) {
+        ScoreboardManager manager = Bukkit.getScoreboardManager();
+        EPlayer ePlayer = PlayerManager.getEPlayer(player);
 
-    public static List<String> mainScore(EPlayer p) {
-        List<String> list = new ArrayList<>();
+        if (manager == null) return;
 
-        list.add("   ");
-        list.add(" §7Cash:  ");
-        list.add("   §e" + p.getCash() + "$  ");
-        list.add(" §7Money:  ");
-        list.add("   §a" + p.getMoney() + "$  ");
-        list.add("  ");
-        list.add(" §7Rank:  ");
-        list.add("   §f" + p.getRank().getDisplayName() + "  ");
-        list.add(" §7Grupo:  ");
-        list.add("   §f" + p.getGroup().getDisplayName() + "  ");
-        list.add("");
+        Scoreboard sb = manager.getNewScoreboard();
+        Objective objective = sb.registerNewObjective("sidebar", "dummy");
+        objective.setDisplaySlot(DisplaySlot.SIDEBAR);
+        objective.setDisplayName("§f§l   CHUVOZ   ");
 
-        return list;
+        objective.getScore(" ").setScore(9);
+        objective.getScore(" §7Grupo:  ").setScore(8);
+        objective.getScore("  " + ePlayer.getGroup().getColor() + ePlayer.getGroup().getDisplayName() + "  ").setScore(7);
+        objective.getScore("  ").setScore(6);
+        objective.getScore(" §7Rank:   ").setScore(5);
+        objective.getScore("  " + ePlayer.getRank().getColor() + ePlayer.getRank().getDisplayName()).setScore(4);
+        objective.getScore("   ").setScore(3);
+        objective.getScore(" §7Money: §a$" + ePlayer.getMoney()).setScore(2);
+        objective.getScore(" §7Cash: §e$" + ePlayer.getCash()).setScore(1);
+        objective.getScore("").setScore(0);
+
+        createPublicTeams(sb);
+        player.setScoreboard(sb);
+
     }
-    public static List<String> mineracaoScore(EPlayer p) {
-        List<String> list = new ArrayList<>();
-
-        list.add("    §aMineracao...    ");
-        list.add("   ");
-        list.add(" §7Blocos:  ");
-        list.add("   §e0");
-        list.add("");
-
-        return list;
-    }
-    public static void addScoreboard(Player player) {
-        Scoreboard scoreboard = Objects.requireNonNull(Bukkit.getScoreboardManager()).getMainScoreboard();
-        Group group = PlayerManager.getPlayerMap().get(player.getUniqueId()).getGroup();
-
-        String teamName =
-                group.getWeight() + player.getName();
-
-        Team team = scoreboard.getTeam(teamName);
-        if (team == null) {
-            team = scoreboard.registerNewTeam(teamName);
-        }
-        assert team != null;
-        String isWhite = group.isWhite()?"§f":"§7";
-        team.setPrefix(group.getColor()+""+group.getDisplayGame() + " " + isWhite);
-        team.getEntries().forEach(team::removeEntry);
-        team.addEntry(player.getName());
-
-        sidebar = scoreboard.getObjective("sidebar");
-        if (sidebar == null) {
-            sidebar = scoreboard.registerNewObjective("sidebar", "dummy");
-            sidebar.setDisplaySlot(DisplaySlot.SIDEBAR);
-            sidebar.setDisplayName("§f§lCHUVOZ");
-        } else {
-            for (String entry : scoreboard.getEntries()) {
-                scoreboard.resetScores(entry);
+    private static void createPublicTeams(Scoreboard sb) {
+        Bukkit.getOnlinePlayers().forEach(player->{
+            EPlayer ePlayer = PlayerManager.getEPlayer(player);
+            String teamName = (99-ePlayer.getGroup().getWeight()) + player.getName();
+            Team team;
+            if (sb.getTeam(teamName) == null) {
+                team = sb.registerNewTeam(teamName);
+            } else {
+                team = sb.getTeam(teamName);
             }
-        }
-
-        EPlayer p = PlayerManager.getPlayerMap().get(player.getUniqueId());
-
-        updateSidebar(player, mainScore(PlayerManager.getPlayerMap().get(player.getUniqueId())));
-
-        player.setScoreboard(scoreboard);
-    }
-    public static void updateSidebar(Player player, List<String> score) {
-        sidebar = player.getScoreboard().getObjective("sidebar");
-        sidebar.unregister();
-
-        sidebar = player.getScoreboard().registerNewObjective("sidebar", "dummy");
-        sidebar.setDisplaySlot(DisplaySlot.SIDEBAR);
-        sidebar.setDisplayName("§f§lCHUVOZ");
-
-        i = score.size();
-
-        score.forEach(msg->{
-            sidebar.getScore(msg).setScore(i);
-            i--;
+            team.setPrefix(ePlayer.getGroup().getColor()+ePlayer.getGroup().getDisplayGame() + " §f");
+            team.addEntry(player.getName());
         });
     }
 
     @EventHandler
-    void quit(PlayerQuitEvent event) {
-        Scoreboard scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
-        String teamName = PlayerManager.getPlayerMap().get(event.getPlayer().getUniqueId()).getGroup().getWeight() + event.getPlayer().getName();
-
-        Team team = scoreboard.getTeam(teamName);
-        if (team != null) {
-            team.unregister();
-        }
-    }
-    @EventHandler
     void join(PlayerJoinEvent event) {
-        addScoreboard(event.getPlayer());
+        Bukkit.getOnlinePlayers().forEach(ScoreboardHandler::setScoreboard);
     }
 }

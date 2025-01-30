@@ -1,6 +1,7 @@
 package rainprojects.chuvoz.manager;
 
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -59,7 +60,9 @@ public class PlayerManager implements Listener {
         });
         instance.saveConfig();
     }
-
+    public static EPlayer getEPlayer(Player player) {
+        return playerMap.get(player.getUniqueId());
+    }
     public static Map<UUID, EPlayer> getPlayerMap() {
         return playerMap;
     }

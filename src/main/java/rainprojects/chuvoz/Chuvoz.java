@@ -3,6 +3,7 @@ package rainprojects.chuvoz;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.plugin.java.JavaPlugin;
+import rainprojects.chuvoz.commands.GroupCommand;
 import rainprojects.chuvoz.commands.Mina;
 import rainprojects.chuvoz.entities.EPlayer;
 import rainprojects.chuvoz.events.General;
@@ -25,14 +26,19 @@ public final class Chuvoz extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new ScoreboardHandler(), this);
 
         getCommand("mina").setExecutor(new Mina());
+        getCommand("group").setExecutor(new GroupCommand());
+        getCommand("grupo").setExecutor(new GroupCommand());
 
         saveDataTimed();
+
+        Bukkit.getOnlinePlayers().forEach(ScoreboardHandler::setScoreboard);
     }
 
     @Override
     public void onDisable() {
         PlayerManager.saveData();
     }
+
 
     public static Chuvoz getInstance() {
         return instance;
